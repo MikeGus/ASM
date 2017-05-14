@@ -1,4 +1,4 @@
-Code    SEGMENT
+Code    SEGMENT BYTE
         ASSUME  CS:Code, DS:Data, SS:STEK
 PP1	PROC 
 	PUSH DS

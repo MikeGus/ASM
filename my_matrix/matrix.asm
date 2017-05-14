@@ -1,6 +1,12 @@
 ;
 Data   SEGMENT  'DATA'
-M	DB	1,1,1,1,0,1,1,1,0,0,1,1,0,0,0,1
+M	DB	1,1,1,1,1,1
+	DB	0,1,1,1,1,1
+	DB	0,0,1,1,1,1
+	DB	0,0,0,1,1,1
+	DB	0,0,0,0,1,1
+	DB	0,0,0,0,0,1
+N	DB	6
 Data   ENDS
 ;
 STEK  SEGMENT STACK 'STACK'
@@ -10,51 +16,47 @@ STEK  ENDS
 Code    SEGMENT
         ASSUME  CS:Code, DS:Data, SS:STEK
 ;
-PP1	PROC 
-        mov   	AX,Data 
+PP1	PROC        
+	mov   	AX,Data 
         mov   	DS,AX
-	;
-	mov 	DH,0
-	mov	DL,0
-	mov	DI,DX; base range between elements
-	mov	AL,4; position step
-	mov	AH,3; shift val
-	;
-	mov	BH,15; base position
-	mov	BL,5; dec value
-	mov	CH,0 ; safety purpose
-	;
+	mov	SI,0	;start src
+		
+	mov	AH,0
+	mov	AL,N
+	dec	AX	;base step
+	mov	CX,0	;init CX
+	PUSH	CX
 init:
-	clc	;remove carry flag
-	add	DL,AH; increase range between elements
-	sub	BH,AL; dec base
-	jc	exit
-	mov	CL,BH ;init CX
-	;
+	POP	CX
+	inc	CX	;inc start element
+	cmp	CL,N
+	je	exit	;end of cycle
+	add	SI,CX
+	mov	BX,AX	;init step
+	mov	DI,SI	
+	add	DI,BX	;init dest elem
+	PUSH	CX
+
 mainloop:
-	mov	SI,CL ;place position
-	add	CL,DL;
-	mov	DI,CL;
-	sub	CL,DL;
-	;
-	push	AX
-	push	DX
-	mov	DL,M[SI] ;swap
-	mov	AL,M[DI]
-	mov	M[SI],AL
-	mov	M[DI],DL
-	pop	DX
-	pop	AX
-	;
-	clc	;remove carry flag
-	sub	CL,BL ;dec position
-	jc	init
+	mov	DL,M[SI]
+	xchg	DL,M[DI]
+	xchg	DL,M[SI]
+	
+	inc	SI
+	add	BX,AX	;inc	step
+	mov	DI,SI
+	add	DI,BX
+
+	inc	CX
+	cmp	CL,N
+	je	init
 	jmp	mainloop;
-	;
+
 exit:
-	mov	AX,0
-	mov	SI,AX
-	mov	CX,16
+	mov	SI,0
+	mov	AL,N
+	mul	N
+	mov	CX,AX
 printloop:
 	loop	print
 	jmp 	todos

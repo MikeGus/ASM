@@ -2,7 +2,7 @@ Data   SEGMENT 'DATA'
 A2    DB   13, 10, 'A2$' 
 Data   ENDS
 ;
-Code    SEGMENT BYTE  
+Code    SEGMENT	BYTE
         ASSUME  CS:Code, DS:Data
 PP2	PROC FAR
         MOV   AX,DATA         
